@@ -419,9 +419,9 @@
     }
 
     .hero-kicker {
-      font-size: 12px;
+      font-size: 30px;
       letter-spacing: 5px;
-      color: var(--gold-light);
+      color: #d8cbb9;
       margin-bottom: 24px;
     }
 
@@ -989,8 +989,9 @@
        Put your own MP3 file path in JavaScript below.
   ======================================================= -->
 
-  <audio id="weddingMusic" loop preload="metadata">
+  <audio id="weddingMusic" loop preload="auto" playsinline aria-label="مۆسیقای بانگهێشت">
     <source src="music.mp3" type="audio/mpeg">
+    وێبگەڕەکەت پشتگیری مۆسیقا ناکات.
   </audio>
 
   <button
@@ -1468,28 +1469,20 @@
        OPEN INVITATION
     ========================================================= */
 
-    openInvitation.addEventListener("click", async () => {
+    openInvitation.addEventListener("click", () => {
 
       envelope.classList.remove("sealed");
-
       openInvitation.disabled = true;
+      openInvitation.textContent = "تکایە چاوەڕێ بکە...";
 
-      openInvitation.textContent =
-        "تکایە چاوەڕێ بکە...";
+      // Ask the browser to start music directly inside the user's click.
+      // This is more reliable on iPhone/Safari than waiting for setTimeout.
+      startMusic();
 
       setTimeout(() => {
-
         invitationCover.classList.add("opened");
-
         document.body.classList.remove("locked");
-
-        window.scrollTo({
-          top: 0,
-          behavior: "instant"
-        });
-
-        startMusic();
-
+        window.scrollTo({ top: 0, behavior: "auto" });
       }, 1100);
 
     });
@@ -1500,54 +1493,32 @@
     ========================================================= */
 
     async function startMusic() {
-
       try {
-
+        music.volume = 0.45;
         await music.play();
-
         musicControl.classList.add("playing");
-
         musicControl.textContent = "♫";
-
+        musicControl.setAttribute("aria-label", "وەستاندنی مۆسیقا");
+        musicControl.title = "وەستاندنی مۆسیقا";
       } catch (error) {
-
-        console.log(
-          "Browser prevented autoplay."
-        );
-
+        // If a browser blocks playback, the visible music button remains available.
+        musicControl.classList.remove("playing");
+        musicControl.textContent = "♪";
+        console.info("Tap the music button to start playback.");
       }
-
     }
 
 
     musicControl.addEventListener("click", async () => {
-
       if (music.paused) {
-
-        try {
-
-          await music.play();
-
-          musicControl.classList.add("playing");
-
-          musicControl.textContent = "♫";
-
-        } catch (error) {
-
-          console.log(error);
-
-        }
-
+        await startMusic();
       } else {
-
         music.pause();
-
         musicControl.classList.remove("playing");
-
         musicControl.textContent = "♪";
-
+        musicControl.setAttribute("aria-label", "پەخشکردنی مۆسیقا");
+        musicControl.title = "پەخشکردنی مۆسیقا";
       }
-
     });
 
 
