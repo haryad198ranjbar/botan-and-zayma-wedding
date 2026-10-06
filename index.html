@@ -1,0 +1,1803 @@
+<!DOCTYPE html>
+<html lang="ckb" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#17120f" />
+
+  <title>بانگهێشتی مارەبرین</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    /* =========================================================
+       RESET
+    ========================================================= */
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: "Noto Sans Arabic", sans-serif;
+      background: #f7f2ea;
+      color: #28201c;
+      overflow-x: hidden;
+    }
+
+    body.locked {
+      overflow: hidden;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    button,
+    a {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    ::selection {
+      background: #9c7a45;
+      color: #fff;
+    }
+
+    /* =========================================================
+       VARIABLES
+    ========================================================= */
+
+    :root {
+      --cream: #f7f2ea;
+      --paper: #fffdf9;
+      --dark: #17120f;
+      --dark-soft: #241b17;
+      --brown: #4b372d;
+      --gold: #b5965b;
+      --gold-light: #d8c49b;
+      --muted: #806f64;
+      --line: rgba(181, 150, 91, 0.32);
+      --white: #ffffff;
+
+      --serif: "Playfair Display", serif;
+      --arabic-serif: "Noto Naskh Arabic", serif;
+    }
+
+    /* =========================================================
+       PRELOADER
+    ========================================================= */
+
+    .preloader {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      background: var(--dark);
+      display: grid;
+      place-items: center;
+      transition: opacity 0.8s ease, visibility 0.8s ease;
+    }
+
+    .preloader.hide {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .loader-content {
+      text-align: center;
+      color: white;
+    }
+
+    .loader-ring {
+      width: 58px;
+      height: 58px;
+      border: 1px solid rgba(255,255,255,.2);
+      border-top-color: var(--gold-light);
+      border-radius: 50%;
+      margin: 0 auto 22px;
+      animation: spin 1.2s linear infinite;
+    }
+
+    .loader-content p {
+      font-family: var(--arabic-serif);
+      color: #d8cbb9;
+      font-size: 18px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* =========================================================
+       INVITATION COVER
+    ========================================================= */
+
+    .invitation-cover {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background:
+        radial-gradient(circle at center, rgba(181,150,91,.12), transparent 35%),
+        #17120f;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      transition: opacity 1s ease, visibility 1s ease;
+    }
+
+    .invitation-cover.opened {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .cover-inner {
+      width: min(450px, 100%);
+      text-align: center;
+      color: white;
+    }
+
+    .cover-kicker {
+      color: var(--gold-light);
+      letter-spacing: 4px;
+      font-size: 11px;
+      margin-bottom: 25px;
+    }
+
+    .envelope {
+      position: relative;
+      width: min(370px, 88vw);
+      height: 250px;
+      margin: 0 auto 30px;
+      perspective: 1000px;
+    }
+
+    .envelope-body {
+      position: absolute;
+      inset: 30px 0 0;
+      background: #f8f1e5;
+      border-radius: 5px;
+      box-shadow: 0 35px 80px rgba(0,0,0,.45);
+      overflow: hidden;
+    }
+
+    .envelope-body::before,
+    .envelope-body::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      width: 0;
+      height: 0;
+      border-style: solid;
+    }
+
+    .envelope-body::before {
+      left: 0;
+      border-width: 0 0 175px 185px;
+      border-color: transparent transparent #e7dccb transparent;
+    }
+
+    .envelope-body::after {
+      right: 0;
+      border-width: 175px 0 0 185px;
+      border-color: transparent transparent transparent #e7dccb;
+    }
+
+    .envelope-flap {
+      position: absolute;
+      top: 30px;
+      left: 0;
+      width: 0;
+      height: 0;
+      border-left: 185px solid transparent;
+      border-right: 185px solid transparent;
+      border-top: 125px solid #efe5d5;
+      transform-origin: top center;
+      transition: transform 1.2s cubic-bezier(.2,.8,.2,1);
+      z-index: 5;
+      filter: drop-shadow(0 4px 3px rgba(0,0,0,.08));
+    }
+
+    .envelope.sealed .envelope-flap {
+      transform: rotateX(0);
+    }
+
+    .seal {
+      position: absolute;
+      z-index: 10;
+      top: 98px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background: var(--gold);
+      color: white;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 10px 25px rgba(0,0,0,.18);
+      font-family: var(--serif);
+      font-size: 21px;
+    }
+
+    .cover-names {
+      font-family: var(--arabic-serif);
+      font-size: 28px;
+      margin-bottom: 9px;
+    }
+
+    .cover-date {
+      color: #cbbda9;
+      font-size: 13px;
+      margin-bottom: 25px;
+    }
+
+    .open-btn {
+      padding: 13px 28px;
+      border: 1px solid rgba(216,196,155,.55);
+      background: transparent;
+      color: white;
+      border-radius: 100px;
+      transition: .3s ease;
+    }
+
+    .open-btn:hover {
+      background: var(--gold);
+      border-color: var(--gold);
+      transform: translateY(-2px);
+    }
+
+    /* =========================================================
+       MUSIC BUTTON
+    ========================================================= */
+
+    .music-control {
+      position: fixed;
+      left: 22px;
+      bottom: 22px;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(23,18,15,.92);
+      color: white;
+      z-index: 1000;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(216,196,155,.4);
+      box-shadow: 0 10px 30px rgba(0,0,0,.15);
+      transition: .3s ease;
+    }
+
+    .music-control:hover {
+      transform: scale(1.06);
+      border-color: var(--gold);
+    }
+
+    .music-control.playing {
+      animation: musicPulse 1.8s infinite;
+    }
+
+    @keyframes musicPulse {
+      50% {
+        box-shadow: 0 0 0 9px rgba(181,150,91,.08);
+      }
+    }
+
+    /* =========================================================
+       NAVIGATION
+    ========================================================= */
+
+    .navbar {
+      position: fixed;
+      top: 0;
+      right: 0;
+      left: 0;
+      z-index: 900;
+      padding: 20px 5%;
+      transition: .4s ease;
+      color: white;
+    }
+
+    .navbar.scrolled {
+      padding: 12px 5%;
+      background: rgba(23,18,15,.92);
+      backdrop-filter: blur(15px);
+      box-shadow: 0 8px 30px rgba(0,0,0,.12);
+    }
+
+    .nav-inner {
+      max-width: 1250px;
+      margin: auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      font-family: var(--serif);
+      font-size: 22px;
+      letter-spacing: 1px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      position: relative;
+      font-size: 13px;
+      color: rgba(255,255,255,.88);
+    }
+
+    .nav-links a::after {
+      content: "";
+      position: absolute;
+      right: 0;
+      bottom: -7px;
+      width: 0;
+      height: 1px;
+      background: var(--gold-light);
+      transition: .3s ease;
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    .menu-btn {
+      display: none;
+      width: 42px;
+      height: 42px;
+      border: 1px solid rgba(255,255,255,.35);
+      border-radius: 50%;
+      background: transparent;
+      color: white;
+      font-size: 20px;
+    }
+
+    /* =========================================================
+       HERO
+    ========================================================= */
+
+    .hero {
+      position: relative;
+      min-height: 100svh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: white;
+      overflow: hidden;
+
+      background:
+        linear-gradient(rgba(20,14,11,.53), rgba(20,14,11,.68)),
+        url("https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=2200&q=90")
+        center/cover;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at center, transparent 20%, rgba(0,0,0,.28) 100%);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      padding: 100px 20px 50px;
+    }
+
+    .hero-kicker {
+      font-size: 12px;
+      letter-spacing: 5px;
+      color: var(--gold-light);
+      margin-bottom: 24px;
+    }
+
+    .hero-names {
+      font-family: var(--serif);
+      font-size: clamp(55px, 10vw, 120px);
+      line-height: .95;
+      font-weight: 500;
+      letter-spacing: -3px;
+      margin-bottom: 24px;
+    }
+
+    .hero-date {
+      font-family: var(--arabic-serif);
+      font-size: 20px;
+      color: #f0e6d5;
+      margin-bottom: 45px;
+    }
+
+    .hero-divider {
+      width: 90px;
+      height: 1px;
+      background: var(--gold-light);
+      margin: 0 auto 25px;
+    }
+
+    .hero-subtitle {
+      font-family: var(--arabic-serif);
+      font-size: 18px;
+      color: #e9dfd0;
+    }
+
+    .scroll-down {
+      position: absolute;
+      bottom: 25px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 3;
+      color: rgba(255,255,255,.7);
+      font-size: 11px;
+    }
+
+    .scroll-line {
+      width: 1px;
+      height: 48px;
+      background: rgba(255,255,255,.5);
+      margin: 10px auto 0;
+      animation: scrollLine 1.7s infinite;
+      transform-origin: top;
+    }
+
+    @keyframes scrollLine {
+      0%,100% {
+        transform: scaleY(.35);
+        opacity: .3;
+      }
+      50% {
+        transform: scaleY(1);
+        opacity: 1;
+      }
+    }
+
+    /* =========================================================
+       GENERIC SECTION
+    ========================================================= */
+
+    section {
+      position: relative;
+    }
+
+    .section {
+      padding: 110px 6%;
+    }
+
+    .section-inner {
+      width: min(1150px, 100%);
+      margin: auto;
+    }
+
+    .eyebrow {
+      color: var(--gold);
+      font-size: 12px;
+      letter-spacing: 3px;
+      margin-bottom: 15px;
+    }
+
+    .section-title {
+      font-family: var(--arabic-serif);
+      color: var(--dark);
+      font-size: clamp(32px, 5vw, 52px);
+      line-height: 1.3;
+      margin-bottom: 18px;
+    }
+
+    .section-description {
+      color: var(--muted);
+      line-height: 2;
+      max-width: 650px;
+    }
+
+    /* =========================================================
+       COUNTDOWN
+    ========================================================= */
+
+    .countdown-section {
+      background: var(--cream);
+      text-align: center;
+    }
+
+    .countdown {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      max-width: 800px;
+      margin: 55px auto 0;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .count-box {
+      padding: 30px 15px;
+      position: relative;
+    }
+
+    .count-box:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 30%;
+      width: 1px;
+      height: 40%;
+      background: var(--line);
+    }
+
+    .count-number {
+      display: block;
+      font-family: var(--serif);
+      font-size: clamp(40px, 6vw, 70px);
+      color: var(--brown);
+      line-height: 1;
+      direction: ltr;
+    }
+
+    .count-label {
+      display: block;
+      margin-top: 12px;
+      color: var(--gold);
+      font-size: 13px;
+    }
+
+    .count-finished {
+      display: none;
+      margin-top: 40px;
+      font-family: var(--arabic-serif);
+      font-size: 25px;
+      color: var(--gold);
+    }
+
+    /* =========================================================
+       NIGHT PROGRAM
+    ========================================================= */
+
+    .night-program {
+      background: var(--dark);
+      color: white;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .night-program::before {
+      content: "";
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: rgba(181,150,91,.05);
+      top: -300px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .night-program .section-title {
+      color: white;
+    }
+
+    .night-program .eyebrow {
+      color: var(--gold-light);
+    }
+
+    .night-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      margin-top: 60px;
+      border-top: 1px solid rgba(216,196,155,.25);
+      border-bottom: 1px solid rgba(216,196,155,.25);
+    }
+
+    .night-item {
+      padding: 45px 25px;
+      position: relative;
+    }
+
+    .night-item:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 25%;
+      width: 1px;
+      height: 50%;
+      background: rgba(216,196,155,.25);
+    }
+
+    .night-icon {
+      font-size: 24px;
+      margin-bottom: 18px;
+    }
+
+    .night-label {
+      display: block;
+      color: var(--gold-light);
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    .night-value {
+      font-family: var(--arabic-serif);
+      font-size: 23px;
+      color: white;
+    }
+
+    /* =========================================================
+       VENUE
+    ========================================================= */
+
+    .venue-section {
+      background: #fffdf9;
+    }
+
+    .venue-layout {
+      display: grid;
+      grid-template-columns: .9fr 1.1fr;
+      gap: 70px;
+      align-items: center;
+    }
+
+    .venue-details {
+      text-align: right;
+    }
+
+    .venue-name {
+      font-family: var(--arabic-serif);
+      font-size: 35px;
+      color: var(--dark);
+      margin-bottom: 25px;
+    }
+
+    .venue-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 15px;
+      padding: 18px 0;
+      border-bottom: 1px solid rgba(75,55,45,.12);
+    }
+
+    .venue-row-icon {
+      color: var(--gold);
+      font-size: 20px;
+      min-width: 25px;
+    }
+
+    .venue-row strong {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 14px;
+    }
+
+    .venue-row span {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .map-card {
+      min-height: 470px;
+      border-radius: 3px;
+      overflow: hidden;
+      position: relative;
+      background:
+        linear-gradient(rgba(35,28,23,.25), rgba(35,28,23,.25)),
+        url("https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=1400&q=85")
+        center/cover;
+      box-shadow: 0 30px 70px rgba(38,28,22,.12);
+    }
+
+    .map-overlay {
+      position: absolute;
+      inset: auto 25px 25px;
+      background: rgba(255,253,249,.94);
+      padding: 22px;
+      backdrop-filter: blur(10px);
+    }
+
+    .map-overlay p {
+      font-family: var(--arabic-serif);
+      font-size: 20px;
+      margin-bottom: 12px;
+    }
+
+    .map-btn {
+      display: inline-flex;
+      padding: 10px 18px;
+      border: 1px solid var(--gold);
+      color: var(--brown);
+      transition: .3s ease;
+    }
+
+    .map-btn:hover {
+      background: var(--gold);
+      color: white;
+    }
+
+  
+
+    /* =========================================================
+       FOOTER
+    ========================================================= */
+
+    footer {
+      background: var(--dark);
+      color: white;
+      text-align: center;
+      padding: 75px 20px 35px;
+    }
+
+    .footer-names {
+      font-family: var(--serif);
+      font-size: 48px;
+      margin-bottom: 15px;
+    }
+
+    .footer-date {
+      color: var(--gold-light);
+      margin-bottom: 40px;
+    }
+
+    .footer-line {
+      width: 80px;
+      height: 1px;
+      background: var(--gold);
+      margin: 0 auto 25px;
+    }
+
+    .footer-copy {
+      color: rgba(255,255,255,.5);
+      font-size: 12px;
+    }
+
+    /* =========================================================
+       REVEAL ANIMATIONS
+    ========================================================= */
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(35px);
+      transition:
+        opacity .9s ease,
+        transform .9s cubic-bezier(.2,.7,.2,1);
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .delay-1 {
+      transition-delay: .1s;
+    }
+
+    .delay-2 {
+      transition-delay: .2s;
+    }
+
+    .delay-3 {
+      transition-delay: .3s;
+    }
+
+    /* =========================================================
+       RESPONSIVE
+    ========================================================= */
+
+    @media (max-width: 900px) {
+      .nav-links {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: min(320px, 85vw);
+        height: 100vh;
+        background: rgba(23,18,15,.98);
+        flex-direction: column;
+        justify-content: center;
+        gap: 30px;
+        transform: translateX(100%);
+        transition: .45s ease;
+      }
+
+      .nav-links.open {
+        transform: translateX(0);
+      }
+
+      .menu-btn {
+        display: grid;
+        place-items: center;
+      }
+
+      .venue-layout {
+        grid-template-columns: 1fr;
+        gap: 45px;
+      }
+
+      .venue-details {
+        text-align: center;
+      }
+
+      .venue-row {
+        text-align: right;
+      }
+
+      .night-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .night-item:not(:last-child)::after {
+        top: auto;
+        bottom: 0;
+        right: 15%;
+        left: 15%;
+        width: 70%;
+        height: 1px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .navbar {
+        padding: 15px 20px;
+      }
+
+      .navbar.scrolled {
+        padding: 10px 20px;
+      }
+
+      .hero-names {
+        font-size: clamp(48px, 15vw, 75px);
+        letter-spacing: -1px;
+      }
+
+      .hero-kicker {
+        letter-spacing: 3px;
+      }
+
+      .countdown {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .count-box:nth-child(2)::after {
+        display: none;
+      }
+
+      .count-box:nth-child(1),
+      .count-box:nth-child(2) {
+        border-bottom: 1px solid var(--line);
+      }
+
+      .count-box {
+        padding: 25px 10px;
+      }
+
+      .section {
+        padding: 80px 20px;
+      }
+
+      .map-card {
+        min-height: 360px;
+      }
+
+      .footer-names {
+        font-size: 38px;
+      }
+    }
+
+    /* =========================================================
+       REDUCED MOTION
+    ========================================================= */
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body class="locked">
+
+  <!-- =======================================================
+       PRELOADER
+  ======================================================= -->
+
+  <div class="preloader" id="preloader">
+    <div class="loader-content">
+      <div class="loader-ring"></div>
+      <p>تکایە چاوەڕێ بکە...</p>
+    </div>
+  </div>
+
+
+  <!-- =======================================================
+       INVITATION COVER
+  ======================================================= -->
+
+  <div class="invitation-cover" id="invitationCover">
+
+    <div class="cover-inner">
+
+      <div class="cover-kicker">
+        BANGETHANAME
+      </div>
+
+      <div class="envelope sealed" id="envelope">
+
+        <div class="envelope-body"></div>
+
+        <div class="envelope-flap"></div>
+
+        <div class="seal">
+          ♡
+        </div>
+
+      </div>
+
+      <div class="cover-names" id="coverNames">
+        محمد &amp; زەمەن
+      </div>
+
+      <div class="cover-date" id="coverDate">
+        ٢٨ی ئاب ٢٠٢٦
+      </div>
+
+      <button class="open-btn" id="openInvitation">
+        کردنەوەی بانگهێشت
+      </button>
+
+    </div>
+  </div>
+
+
+  <!-- =======================================================
+       MUSIC CONTROL
+       Put your own MP3 file path in JavaScript below.
+  ======================================================= -->
+
+  <audio id="weddingMusic" loop preload="metadata">
+    <source src="music.mp3" type="audio/mpeg">
+  </audio>
+
+  <button
+    class="music-control"
+    id="musicControl"
+    aria-label="مۆسیقا"
+    title="مۆسیقا"
+  >
+    ♪
+  </button>
+
+
+  <!-- =======================================================
+       NAVIGATION
+  ======================================================= -->
+
+  <header class="navbar" id="navbar">
+
+    <div class="nav-inner">
+
+      <a href="#home" class="brand" id="navBrand">
+        B &amp; Z 
+      </a>
+
+      <button
+        class="menu-btn"
+        id="menuBtn"
+        aria-label="مێنیو"
+      >
+        ☰
+      </button>
+
+      <ul class="nav-links" id="navLinks">
+
+        <li>
+          <a href="#home">سەرەتا</a>
+        </li>
+
+        <li>
+          <a href="#countdown">ژمێر</a>
+        </li>
+
+        <li>
+          <a href="#program">وردەکاری ئاهەنگ </a>
+        </li>
+
+        <li>
+          <a href="#venue">شوێن</a>
+        </li>
+
+
+      </ul>
+
+    </div>
+  </header>
+
+
+  <!-- =======================================================
+       HERO
+  ======================================================= -->
+
+  <main>
+
+    <section class="hero" id="home">
+
+      <div class="hero-content">
+
+        <div class="hero-kicker reveal">
+          بە خۆشحاڵییەوە بانگهێشتتان دەکەین
+        </div>
+
+        <h1 class="hero-names reveal delay-1" id="heroNames">
+          محمد &amp; زەمەن
+        </h1>
+
+        <div class="hero-divider"></div>
+
+        <div class="hero-date reveal delay-2" id="heroDate">
+          ٢٨ی ئاب ٢٠٢٦
+        </div>
+
+        <p class="hero-subtitle reveal delay-3">
+          لەگەڵ ئێمە بن لە دەستپێکردنی ژیانی نوێمان
+        </p>
+
+      </div>
+
+      <div class="scroll-down">
+        خوارەوە
+        <div class="scroll-line"></div>
+      </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         COUNTDOWN
+    ===================================================== -->
+
+    <section class="section countdown-section" id="countdown">
+
+      <div class="section-inner">
+
+        <div class="eyebrow reveal">
+          بە هەژمارکردنی کاتەکە
+        </div>
+
+        <h2 class="section-title reveal">
+          بۆ ڕۆژی خۆشەویستییەکەمان
+        </h2>
+
+        <p class="section-description reveal" style="margin: auto;">
+          کەمێک ماوە بۆ ئەو ڕۆژەی کە دەبێتە یەکێک لە جوانترین یادەوەرییەکانمان.
+        </p>
+
+        <div class="countdown reveal">
+
+          <div class="count-box">
+            <span class="count-number" id="days">00</span>
+            <span class="count-label">ڕۆژ</span>
+          </div>
+
+          <div class="count-box">
+            <span class="count-number" id="hours">00</span>
+            <span class="count-label">کاتژمێر</span>
+          </div>
+
+          <div class="count-box">
+            <span class="count-number" id="minutes">00</span>
+            <span class="count-label">خولەک</span>
+          </div>
+
+          <div class="count-box">
+            <span class="count-number" id="seconds">00</span>
+            <span class="count-label">چرکە</span>
+          </div>
+
+        </div>
+
+        <div class="count-finished" id="countFinished">
+          🎉 ئەمڕۆ ڕۆژی خۆشەویستییەکەمانە
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- =====================================================
+         NIGHT PROGRAM
+    ===================================================== -->
+
+    <section class="section night-program" id="program">
+
+      <div class="section-inner">
+
+        <div class="eyebrow reveal">
+          زانیارییەکانی بۆنەکە
+        </div>
+
+        <h2 class="section-title reveal">
+          وردەکاری ئاهەنگ
+        </h2>
+
+        <div class="night-grid">
+
+          <div class="night-item reveal">
+
+            <div class="night-icon">
+              ⏰
+            </div>
+
+            <span class="night-label">
+              کاتژمێر
+            </span>
+
+            <strong class="night-value" id="programTime">
+              ٦:٠٠ ئێوارە
+            </strong>
+
+          </div>
+
+
+          <div class="night-item reveal delay-1">
+
+            <div class="night-icon">
+              📅
+            </div>
+
+            <span class="night-label">
+              بەروار
+            </span>
+
+            <strong class="night-value" id="programDate">
+              ٢٨ی ئاب ٢٠٢٦
+            </strong>
+
+          </div>
+
+
+          <div class="night-item reveal delay-2">
+
+            <div class="night-icon">
+              📍
+            </div>
+
+            <span class="night-label">
+              ناونیشان
+            </span>
+
+            <strong class="night-value" id="programLocation">
+              هۆڵی نەورۆز ١
+            </strong>
+
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- =====================================================
+         VENUE
+    ===================================================== -->
+
+    <section class="section venue-section" id="venue">
+
+      <div class="section-inner venue-layout">
+
+        <div class="venue-details">
+
+          <div class="eyebrow reveal">
+            شوێنی بۆنەکە
+          </div>
+
+          <h2 class="section-title reveal">
+            بەیەکەوە لەوێ دەبینین
+          </h2>
+
+          <h3 class="venue-name reveal" id="venueName">
+            هۆڵی نەورۆز ١
+          </h3>
+
+
+          <div class="venue-row reveal">
+
+            <div class="venue-row-icon">
+              📍
+            </div>
+
+            <div>
+              <strong>ناونیشان</strong>
+              <span id="venueAddress">
+                هەولێر، کوردستان
+              </span>
+            </div>
+
+          </div>
+
+
+          <div class="venue-row reveal">
+
+            <div class="venue-row-icon">
+              📅
+            </div>
+
+            <div>
+              <strong>بەروار</strong>
+              <span id="venueDate">
+                ٢٨ی ئاب ٢٠٢٦
+              </span>
+            </div>
+
+          </div>
+
+
+          <div class="venue-row reveal">
+
+            <div class="venue-row-icon">
+              ⏰
+            </div>
+
+            <div>
+              <strong>کات</strong>
+              <span id="venueTime">
+                ٢:٠٠ دوای نیوەرۆ
+              </span>
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div class="map-card reveal">
+
+          <div class="map-overlay">
+
+            <p>
+              شوێنی بۆنەکە
+            </p>
+
+            <a
+              href="https://maps.app.goo.gl/CwVJSFut5CiwSZrh9"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="map-btn"
+            >
+              کردنەوەی نەخشە
+            </a>
+
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+
+
+  <!-- =======================================================
+       FOOTER
+  ======================================================= -->
+
+  <footer>
+
+    <div class="footer-names" id="footerNames">
+      botan &amp; zayma
+    </div>
+
+    <div class="footer-date" id="footerDate">
+     ١٦ی تشرینی یەکەم ٢٠٢٦
+    </div>
+
+    <div class="footer-line"></div>
+
+    <p class="footer-copy">
+      بە خۆشحاڵییەوە چاوەڕوانی ئامادەبوونتانین 🤍
+    </p>
+
+  </footer>
+
+
+  <!-- =======================================================
+       JAVASCRIPT
+  ======================================================= -->
+
+  <script>
+
+    /* =========================================================
+       WEDDING DATA
+       تەنها ئەمانە بگۆڕە
+    ========================================================= */
+
+    const weddingData = {
+
+      groom: "بۆتان",
+
+      bride: "زەیما",
+
+      dateISO: "2026-10-16T18:00:00",
+
+      dateText: "١٦ی تشرینی یەکەم ٢٠٢٦",
+
+      timeText: "٦:٠٠ی ئێوارە",
+
+      venue: "وایت هۆڵ-white hall",
+
+      address: "نزیک شەقامی ١٢٠ م",
+
+      maps:
+        "https://maps.app.goo.gl/2yZgxkFYuD2PMqrv8"
+
+    };
+
+
+    /* =========================================================
+       DOM ELEMENTS
+    ========================================================= */
+
+    const preloader =
+      document.getElementById("preloader");
+
+    const invitationCover =
+      document.getElementById("invitationCover");
+
+    const envelope =
+      document.getElementById("envelope");
+
+    const openInvitation =
+      document.getElementById("openInvitation");
+
+    const music =
+      document.getElementById("weddingMusic");
+
+    const musicControl =
+      document.getElementById("musicControl");
+
+    const navbar =
+      document.getElementById("navbar");
+
+    const menuBtn =
+      document.getElementById("menuBtn");
+
+    const navLinks =
+      document.getElementById("navLinks");
+
+
+    /* =========================================================
+       INSERT WEDDING DATA
+    ========================================================= */
+
+    const coupleNames =
+      `${weddingData.groom} & ${weddingData.bride}`;
+
+    document.getElementById("heroNames").textContent =
+      coupleNames;
+
+    document.getElementById("coverNames").textContent =
+      coupleNames;
+
+    document.getElementById("footerNames").textContent =
+      coupleNames;
+
+    document.getElementById("heroDate").textContent =
+      weddingData.dateText;
+
+    document.getElementById("coverDate").textContent =
+      weddingData.dateText;
+
+    document.getElementById("footerDate").textContent =
+      weddingData.dateText;
+
+    document.getElementById("programTime").textContent =
+      weddingData.timeText;
+
+    document.getElementById("programDate").textContent =
+      weddingData.dateText;
+
+    document.getElementById("programLocation").textContent =
+      weddingData.venue;
+
+    document.getElementById("venueName").textContent =
+      weddingData.venue;
+
+    document.getElementById("venueAddress").textContent =
+      weddingData.address;
+
+    document.getElementById("venueDate").textContent =
+      weddingData.dateText;
+
+    document.getElementById("venueTime").textContent =
+      weddingData.timeText;
+
+    document.querySelector(".map-btn").href =
+      weddingData.maps;
+
+
+    /* =========================================================
+       PRELOADER
+    ========================================================= */
+
+    window.addEventListener("load", () => {
+
+      setTimeout(() => {
+
+        preloader.classList.add("hide");
+
+      }, 700);
+
+    });
+
+
+    /* =========================================================
+       OPEN INVITATION
+    ========================================================= */
+
+    openInvitation.addEventListener("click", async () => {
+
+      envelope.classList.remove("sealed");
+
+      openInvitation.disabled = true;
+
+      openInvitation.textContent =
+        "تکایە چاوەڕێ بکە...";
+
+      setTimeout(() => {
+
+        invitationCover.classList.add("opened");
+
+        document.body.classList.remove("locked");
+
+        window.scrollTo({
+          top: 0,
+          behavior: "instant"
+        });
+
+        startMusic();
+
+      }, 1100);
+
+    });
+
+
+    /* =========================================================
+       MUSIC
+    ========================================================= */
+
+    async function startMusic() {
+
+      try {
+
+        await music.play();
+
+        musicControl.classList.add("playing");
+
+        musicControl.textContent = "♫";
+
+      } catch (error) {
+
+        console.log(
+          "Browser prevented autoplay."
+        );
+
+      }
+
+    }
+
+
+    musicControl.addEventListener("click", async () => {
+
+      if (music.paused) {
+
+        try {
+
+          await music.play();
+
+          musicControl.classList.add("playing");
+
+          musicControl.textContent = "♫";
+
+        } catch (error) {
+
+          console.log(error);
+
+        }
+
+      } else {
+
+        music.pause();
+
+        musicControl.classList.remove("playing");
+
+        musicControl.textContent = "♪";
+
+      }
+
+    });
+
+
+    /* =========================================================
+       COUNTDOWN
+    ========================================================= */
+
+    const weddingDate =
+      new Date(weddingData.dateISO).getTime();
+
+
+    function updateCountdown() {
+
+      const now =
+        new Date().getTime();
+
+      const difference =
+        weddingDate - now;
+
+
+      if (difference <= 0) {
+
+        document.getElementById("days").textContent =
+          "00";
+
+        document.getElementById("hours").textContent =
+          "00";
+
+        document.getElementById("minutes").textContent =
+          "00";
+
+        document.getElementById("seconds").textContent =
+          "00";
+
+        document.getElementById("countFinished").style.display =
+          "block";
+
+        return;
+
+      }
+
+
+      const days =
+        Math.floor(
+          difference / (1000 * 60 * 60 * 24)
+        );
+
+      const hours =
+        Math.floor(
+          (difference / (1000 * 60 * 60)) % 24
+        );
+
+      const minutes =
+        Math.floor(
+          (difference / (1000 * 60)) % 60
+        );
+
+      const seconds =
+        Math.floor(
+          (difference / 1000) % 60
+        );
+
+
+      document.getElementById("days").textContent =
+        String(days).padStart(2, "0");
+
+      document.getElementById("hours").textContent =
+        String(hours).padStart(2, "0");
+
+      document.getElementById("minutes").textContent =
+        String(minutes).padStart(2, "0");
+
+      document.getElementById("seconds").textContent =
+        String(seconds).padStart(2, "0");
+
+    }
+
+
+    updateCountdown();
+
+    setInterval(updateCountdown, 1000);
+
+
+    /* =========================================================
+       NAVBAR SCROLL
+    ========================================================= */
+
+    window.addEventListener("scroll", () => {
+
+      if (window.scrollY > 70) {
+
+        navbar.classList.add("scrolled");
+
+      } else {
+
+        navbar.classList.remove("scrolled");
+
+      }
+
+    });
+
+
+    /* =========================================================
+       MOBILE MENU
+    ========================================================= */
+
+    menuBtn.addEventListener("click", () => {
+
+      navLinks.classList.toggle("open");
+
+      menuBtn.textContent =
+        navLinks.classList.contains("open")
+          ? "×"
+          : "☰";
+
+    });
+
+
+    document.querySelectorAll(".nav-links a")
+      .forEach(link => {
+
+        link.addEventListener("click", () => {
+
+          navLinks.classList.remove("open");
+
+          menuBtn.textContent = "☰";
+
+        });
+
+      });
+
+
+    /* =========================================================
+       SCROLL REVEAL
+    ========================================================= */
+
+    const revealElements =
+      document.querySelectorAll(".reveal");
+
+
+    const revealObserver =
+      new IntersectionObserver(
+        (entries) => {
+
+          entries.forEach(entry => {
+
+            if (entry.isIntersecting) {
+
+              entry.target.classList.add("visible");
+
+              revealObserver.unobserve(
+                entry.target
+              );
+
+            }
+
+          });
+
+        },
+        {
+          threshold: 0.12
+        }
+      );
+
+
+    revealElements.forEach(element => {
+
+      revealObserver.observe(element);
+
+    });
+
+
+    /* =========================================================
+       RSVP
+    ========================================================= */
+
+    const rsvpForm =
+      document.getElementById("rsvpForm");
+
+    const rsvpMessage =
+      document.getElementById("rsvpMessage");
+
+
+    rsvpForm.addEventListener("submit", (event) => {
+
+      event.preventDefault();
+
+      const name =
+        document.getElementById("guestName").value.trim();
+
+      if (!name) return;
+
+      rsvpMessage.style.display =
+        "block";
+
+      rsvpForm.reset();
+
+    });
+
+
+    /* =========================================================
+       SMOOTH NAVIGATION
+    ========================================================= */
+
+    document.querySelectorAll('a[href^="#"]')
+      .forEach(anchor => {
+
+        anchor.addEventListener("click", function(event) {
+
+          const target =
+            document.querySelector(
+              this.getAttribute("href")
+            );
+
+          if (!target) return;
+
+          event.preventDefault();
+
+          target.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+          });
+
+        });
+
+      });
+
+
+    /* =========================================================
+       PARALLAX HERO
+    ========================================================= */
+
+    const hero =
+      document.querySelector(".hero");
+
+    window.addEventListener("scroll", () => {
+
+      const scroll =
+        window.scrollY;
+
+      if (scroll < window.innerHeight) {
+
+        hero.style.backgroundPosition =
+          `center calc(50% + ${scroll * 0.18}px)`;
+
+      }
+
+    });
+
+  </script>
+
+</body>
+</html>
